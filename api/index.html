@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>MVP Companies Summary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: system-ui, sans-serif; background:#f6f7fb; margin:0; padding:24px; }
+      .card { max-width: 680px; margin: 0 auto; background:#fff; padding:20px; border-radius:16px; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+      label { display:block; margin:12px 0 6px; font-size:14px; }
+      input, button { font-size:16px; padding:10px 12px; border-radius:10px; border:1px solid #d1d5db; width:100%; box-sizing:border-box; }
+      .row { display:grid; gap:12px; grid-template-columns:1fr 1fr; }
+      pre { white-space:pre-wrap; word-break:break-word; background:#0b1020; color:#cfe3ff; padding:14px; border-radius:12px; }
+      button { background:#111; color:#fff; border:none; cursor:pointer; }
+      button:disabled { opacity:.6; cursor:not-allowed; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>MVP Companies Summary</h1>
+      <form id="f">
+        <label>Consulta (q)</label>
+        <input id="q" placeholder="Bruchou" />
+        <div class="row">
+          <div>
+            <label>Desde</label>
+            <input id="from" type="date" />
+          </div>
+          <div>
+            <label>Hasta</label>
+            <input id="to" type="date" />
+          </div>
+        </div>
+        <p></p>
+        <button id="btn">Consultar</button>
+      </form>
+      <h3>Respuesta</h3>
+      <pre id="out">—</pre>
+    </div>
+
+    <script>
+      const f = document.getElementById('f');
+      const out = document.getElementById('out');
+      const btn = document.getElementById('btn');
+
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        btn.disabled = true; out.textContent = 'Consultando...';
+        const payload = {
+          q: document.getElementById('q').value || '',
+          from_date: document.getElementById('from').value || null,
+          to_date: document.getElementById('to').value || null
+        };
+        try {
+          const r = await fetch('/api/summary', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await r.json();
+          out.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          out.textContent = 'Error: ' + (err?.message || String(err));
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
